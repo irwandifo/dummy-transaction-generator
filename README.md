@@ -22,7 +22,7 @@ pip install git+https://github.com/irwandifo/dummy-transaction-generator.git
 
 ```bash
 git clone https://github.com/irwandifo/dummy-transaction-generator.git
-cd transaction-generator
+cd dummy-transaction-generator
 pip install -e .
 ```
 
@@ -36,8 +36,8 @@ from datetime import date
 pattern = TransactionPattern(
     base_amount = 20_000,
     base_transaction = 80,
-    trend_factor = 0.001, #0.1% daily increase
-    max_weekend_factor = 1.5, #max 50% weekend increase
+    trend_factor = 0.001, # 0.1% daily increase
+    max_weekend_factor = 1.5, # max 50% weekend increase
 )
 
 # Defines transaction generator config
@@ -51,7 +51,6 @@ generator = TransactionGenerator(
 # Write to parquet
 generator.write_to_parquet()
 ```
-
 
 ## Data Dictionary
 
