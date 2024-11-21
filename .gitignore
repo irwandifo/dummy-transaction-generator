@@ -1,0 +1,6 @@
+# Ignore folder
+dev
+env
+
+# Ignore notes
+*.txt
