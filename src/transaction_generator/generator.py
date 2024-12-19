@@ -1,7 +1,7 @@
 import polars as pl
 import numpy as np
 import uuid
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 from typing import Iterator, List
 from pathlib import Path
 from .data_model import Merchant, TransactionPattern
@@ -42,12 +42,12 @@ class TransactionGenerator:
             for i in range(self.num_merchants)
         ]
 
-    def generate_daily_transactions(self, current_date: date, num_day: int) -> Iterator[dict]:
+    def generate_daily_transactions(self, current_datetime: datetime, num_day: int) -> Iterator[dict]:
         """
         Generate daily transactions of all merchants.
         """
         rng = np.random.default_rng(num_day)
-        weekday = current_date.weekday()
+        weekday = current_datetime.weekday()
         noise = rng.normal(1, 0.1)
         
         for merchant in self.merchants:
@@ -62,7 +62,7 @@ class TransactionGenerator:
             payment_methods = rng.choice(self.PAYMENT_METHODS, p=self.PAYMENT_PROBABILITIES, size=num_transactions)
             amounts = np.round(rng.normal(merchant.avg_amount, merchant.std_amount, size=num_transactions))
             timestamps = [
-                current_date + timedelta(seconds=int(second)) 
+                current_datetime + timedelta(seconds=int(second)) 
                 for second in sorted(rng.integers(0, 86_399, size=num_transactions))
             ]
             
@@ -89,7 +89,8 @@ class TransactionGenerator:
 
         for day in range(num_days):
             current_date = self.start_date + timedelta(days=day)
-            transaction_generator = self.generate_daily_transactions(current_date, day)
+            current_datetime = datetime.combine(current_date, datetime.min.time())
+            transaction_generator = self.generate_daily_transactions(current_datetime, day)
             current_batch = pl.concat(pl.DataFrame(transaction) for transaction in transaction_generator)
             current_batch.write_parquet(output_path / f'transactions_{current_date}.parquet', compression='zstd')
             print(f'transactions_{current_date}.parquet written with {len(current_batch)} rows.')
