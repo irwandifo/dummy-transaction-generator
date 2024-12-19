@@ -1,7 +1,7 @@
 import polars as pl
 import numpy as np
 import uuid
-from datetime import timedelta, date, datetime
+from datetime import timedelta, date, datetime, timezone
 from typing import Iterator, List
 from pathlib import Path
 from .data_model import Merchant, TransactionPattern
@@ -89,7 +89,7 @@ class TransactionGenerator:
 
         for day in range(num_days):
             current_date = self.start_date + timedelta(days=day)
-            current_datetime = datetime.combine(current_date, datetime.min.time())
+            current_datetime = datetime.combine(current_date, datetime.min.time(), tzinfo=timezone.utc)
             transaction_generator = self.generate_daily_transactions(current_datetime, day)
             current_batch = pl.concat(pl.DataFrame(transaction) for transaction in transaction_generator)
             current_batch.write_parquet(output_path / f'transactions_{current_date}.parquet', compression='zstd')
